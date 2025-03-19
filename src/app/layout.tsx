@@ -1,6 +1,11 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
+import { MantineProvider } from "@mantine/core";
+import "@mantine/core/styles.css";
+import Header from "@/component/Header";
+import { ToastContainer, Bounce } from "react-toastify";
+import TanstackProvider from "@/helpers/TanstackProvider";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -25,9 +30,22 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${geistSans.variable} ${geistMono.variable} antialiased `}
       >
-        {children}
+        <TanstackProvider>
+          <MantineProvider>
+            <main className="max-w-[1480px] mx-auto">
+              <ToastContainer
+                position="top-right"
+                autoClose={4000}
+                hideProgressBar={false}
+                transition={Bounce}
+              />
+
+              {children}
+            </main>
+          </MantineProvider>
+        </TanstackProvider>
       </body>
     </html>
   );
