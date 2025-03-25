@@ -3,13 +3,12 @@ import { ArrowLeft2 } from "iconsax-react";
 import { useRouter } from "next/navigation";
 import React, { useEffect, useMemo, useState } from "react";
 import { useCart } from "../../../../store/cart";
-import Image from "next/image";
 import Button from "@/component/Button";
-import { NIGERIAN_STATES, products as rawProduct } from "../../../../libs/data";
+import { NIGERIAN_STATES } from "../../../../libs/data";
 import ProductCard from "@/component/ProductCard";
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import zod from "zod";
+import zod, { any } from "zod";
 import InputField from "@/component/InputField";
 import SelectField from "@/component/SelectField";
 import { useCreateOrder } from "@/hooks/useCreateOrder";
@@ -24,15 +23,15 @@ const formScheme = zod.object({
   address: zod.string().min(1, "customer address is required"),
   state: zod.string().min(1, "state is required"),
   phoneNumber: zod.string().min(1, "contact number is required"),
-  email: zod.string().min(1, "contact email is required"),
-  serviceFee: zod.boolean().default(false),
+  email: zod.string().email().min(1, "contact email is required"),
+  name: zod.string().min(1, "fullname is required"),
 });
 type formSchemeType = zod.infer<typeof formScheme>;
 
 const page = () => {
   const router = useRouter();
-  const { products } = useCart();
-  const { openCreateOrder, viewCreateOrder } = useCreateOrder();
+  const { products, clearCart } = useCart();
+
   const {
     handleSubmit,
     control,
@@ -64,9 +63,11 @@ const page = () => {
     }, 0);
   }, [products]);
 
+  const { openCreateOrder, viewCreateOrder } = useCreateOrder();
+
   const handleProceedToCheckout = (value: formSchemeType) => {
     if (products && products?.length > 0) {
-      return openCreateOrder(Number(orderAmount) + Number(shippingFee));
+      return openCreateOrder(Number(orderAmount) + Number(shippingFee), value);
     }
     toast("Cart is empty", { type: "error" });
   };
@@ -89,33 +90,35 @@ const page = () => {
       <div className=" grid lg:grid-cols-2 gap-12">
         {products != undefined && products?.length > 0 ? (
           <div className="mt-3">
-            {products?.map((product, index) => (
-              <div
-                key={product._id}
-                className={`flex items-center gap-5  py-3 dark:border-zinc-400 ${
-                  index < products?.length - 1 ? " border-b" : "border-none"
-                }`}
-              >
-                <div className="flex flex-1 items-start gap-x-5">
-                  <Image
-                    src={product?.images[0] ?? "/placeholders.jpg"}
-                    alt=""
-                    height={130}
-                    width={130}
-                  />
-                  <div className="flex h-[130px] flex-col justify-center gap-4 py-2">
-                    <p>{product?.name}</p>
-                    <strong className="text-lg">
-                      ₦{product?.price.toLocaleString()}
-                    </strong>
+            {products
+              .filter((product) => product.isOrder === true)
+              ?.map((product, index) => (
+                <div
+                  key={product._id}
+                  className={`flex items-center gap-5  py-3 dark:border-zinc-400 ${
+                    index < products?.length - 1 ? " border-b" : "border-none"
+                  }`}
+                >
+                  <div className="flex flex-1 items-start gap-x-5">
+                    <img
+                      src={product?.images[0] ?? "/placeholders.jpg"}
+                      alt=""
+                      height={130}
+                      width={130}
+                    />
+                    <div className="flex h-[130px] flex-col justify-center gap-4 py-2">
+                      <p>{product?.name}</p>
+                      <strong className="text-lg">
+                        ₦{(product?.price * product?.quantity).toLocaleString()}
+                      </strong>
+                    </div>
+                  </div>
+
+                  <div className="flex h-[130px] flex-col items-end justify-between py-4">
+                    <p>Qty: {product?.quantity}</p>
                   </div>
                 </div>
-
-                <div className="flex h-[130px] flex-col items-end justify-between py-4">
-                  <p>Qty: {product?.quantity}</p>
-                </div>
-              </div>
-            ))}
+              ))}
           </div>
         ) : (
           <CartEmpty />
@@ -173,6 +176,20 @@ const page = () => {
                   )}
                 />
               </div>
+              <p className="text-2xl font-semibold">Contact Information </p>
+
+              <Controller
+                name="name"
+                control={control}
+                render={({ field }: any) => (
+                  <InputField
+                    {...field}
+                    placeholder="Enter fullname"
+                    labelName="Full Name"
+                    errorMessage={errors.name?.message}
+                  />
+                )}
+              />
               <div className="grid grid-cols-2 gap-x-3">
                 <Controller
                   name="phoneNumber"
@@ -252,11 +269,11 @@ const page = () => {
 
       <div>
         <p className=" text-2xl md:text-4xl mt-10">You May Also Like</p>
-        <div className=" grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 gap-10 mt-10">
+        {/* <div className=" grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 gap-10 mt-10">
           {rawProduct.map((product, index) => (
             <ProductCard product={product} key={index} />
           ))}
-        </div>
+        </div> */}
       </div>
     </div>
   );

@@ -2,16 +2,10 @@ import { Text } from "@mantine/core";
 import { ShoppingCart, Star1, Trash } from "iconsax-react";
 import React from "react";
 import { useCart } from "../../store/cart";
+import { Product } from "../../types";
 
 type Props = {
-  product: {
-    _id: string;
-    name: string;
-    price: number;
-    category: string;
-    rating: number;
-    imageUrl: string;
-  };
+  product: Product;
 };
 const ProductCard = ({ product }: Props) => {
   const { products, addToCart, removeFromCart } = useCart();
@@ -33,14 +27,14 @@ const ProductCard = ({ product }: Props) => {
   return (
     <div className=" w-full group ">
       <div className="h-[300px] mb-1 md:h-[350px] w-full bg-[#F6F9F6] flex flex-col justify-center items-center relative">
-        {/* <Image
-      src={product?.imageUrl}
-      height={300}
-      width={300}
-      alt=""
-      loading="lazy"
-      className=" h-full w-full"
-    /> */}
+        <img
+          src={product?.imageUrl[0]}
+          height={300}
+          width={300}
+          alt=""
+          loading="lazy"
+          className=" h-full w-full"
+        />
 
         <div
           onClick={(e) => handleAddToCart(e)}
@@ -59,16 +53,24 @@ const ProductCard = ({ product }: Props) => {
           <Text lineClamp={2} className=" sm:text-lg capitalize  flex-1">
             {product?.name}
           </Text>
-          <div className=" flex-[.3] text-sm ">
-            <p className="font-bold text-end">
-              ₦{product?.price.toLocaleString()}
-            </p>
-            <p className=" line-through text-xs opacity-50 text-end">
-              ₦{product?.price.toLocaleString()}
-            </p>
-          </div>
+          {product?.discountPrice ? (
+            <div className=" flex-[.3] ">
+              <p className="font-bold text-end">
+                ₦{product?.discountPrice.toLocaleString()}
+              </p>
+              <p className=" line-through text-xs opacity-50 text-end">
+                ₦{product?.price.toLocaleString()}
+              </p>
+            </div>
+          ) : (
+            <div className=" flex-[.3]">
+              <p className="font-bold text-end">
+                ₦{product?.price.toLocaleString()}
+              </p>
+            </div>
+          )}
         </div>
-        <div className="flex items-center gap-x-1 sm:mt-1 ">
+        {/* <div className="flex items-center gap-x-1 sm:mt-1 ">
           {Array(5)
             .fill(0)
             .map((_, idx) => (
@@ -79,7 +81,7 @@ const ProductCard = ({ product }: Props) => {
                 variant="Bold"
               />
             ))}
-        </div>
+        </div> */}
 
         <div
           onClick={(e) => handleAddToCart(e)}

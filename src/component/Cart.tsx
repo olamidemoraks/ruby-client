@@ -39,6 +39,9 @@ const CartPage = () => {
   }, [products]);
 
   const handleProceedToCheckout = () => {
+    if (products?.every((products) => products.isOrder === false)) {
+      return toast("Cart is empty", { type: "error" });
+    }
     if (products && products?.length > 0) {
       return router.push("/checkout");
     }
@@ -85,7 +88,7 @@ const CartPage = () => {
                   }
                 />
                 <div className="flex flex-1 items-start gap-x-5">
-                  <Image
+                  <img
                     src={product?.images[0] ?? "/placeholders.jpg"}
                     alt=""
                     height={130}
@@ -169,11 +172,11 @@ const CartPage = () => {
 
       <div>
         <p className=" text-2xl md:text-4xl mt-10">You May Also Like</p>
-        <div className=" grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 gap-10 mt-10">
+        {/* <div className=" grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 gap-10 mt-10">
           {rawProduct.map((product, index) => (
             <ProductCard product={product} key={index} />
           ))}
-        </div>
+        </div> */}
       </div>
     </div>
   );

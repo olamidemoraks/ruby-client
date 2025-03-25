@@ -2,9 +2,9 @@
 import { Text } from "@mantine/core";
 import { Add, Minus, SearchNormal1, Star1 } from "iconsax-react";
 import React, { useState } from "react";
-import { products } from "../../../../libs/data";
 import ProductCard from "@/component/ProductCard";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import useGetProducts from "@/hooks/product/useGetProducts";
 
 const cateories = [
   "Make up",
@@ -13,6 +13,7 @@ const cateories = [
   "Penis enlargement",
 ];
 const page = () => {
+  const { isLoading, products } = useGetProducts();
   const [quantity, setQuantity] = useState(1);
   const searchParams = useSearchParams();
   const query = new URLSearchParams(searchParams || {});
@@ -56,8 +57,13 @@ const page = () => {
             </div>
           </div>
           <div className=" grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 2xl:grid-cols-4 gap-10 mt-10">
-            {products.map((product, index) => (
-              <ProductCard product={product} key={index} />
+            {products?.map((product) => (
+              <div
+                onClick={() => router.push(`/products/${product?._id}`)}
+                key={product?._id}
+              >
+                <ProductCard product={product} />
+              </div>
             ))}
           </div>
         </div>

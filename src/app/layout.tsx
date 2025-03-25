@@ -34,7 +34,7 @@ export default function RootLayout({
       >
         <TanstackProvider>
           <MantineProvider>
-            <main className="max-w-[1480px] mx-auto">
+            <main className="">
               <ToastContainer
                 position="top-right"
                 autoClose={4000}

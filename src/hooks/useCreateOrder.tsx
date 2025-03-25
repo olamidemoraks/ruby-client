@@ -6,18 +6,70 @@ import Image from "next/image";
 import { useMemo, useState } from "react";
 import { toast } from "react-toastify";
 import { useCart } from "../../store/cart";
+import { useMutation } from "@tanstack/react-query";
+import { endpoints } from "../../libs/endpoints";
+import { useFetch } from "./useFetch";
+import { useRouter } from "next/navigation";
 
+export type ShippingAddress = {
+  address: string;
+  email: string;
+  city: string;
+  state: string;
+  phoneNumber: string;
+  name: string;
+};
 function useCreateOrder() {
+  const router = useRouter();
   const [opened, { open, close }] = useDisclosure(false);
   const [totalAmount, setTotalAmount] = useState(0);
+  const { post } = useFetch();
+  const { products, clearCart } = useCart();
+  const [shippingAddress, setShippingAddress] = useState<ShippingAddress>();
+
+  const { mutateAsync: createOrderAsync, isPending } = useMutation({
+    mutationKey: ["CREATE-ORDER"],
+    mutationFn: async ({ value }: { value: any }) => {
+      const res = await post(endpoints.user.order.createOrder, value);
+      if (res.success) {
+        toast("Order Created Successfully", { type: "success" });
+        clearCart();
+        router.push(`/track-order/?ref=${res.data.orderRef}`);
+        close();
+      } else {
+        toast("Order failed", { type: "error" });
+      }
+    },
+  });
 
   const createOrder = () => {
-    toast("Order Created Successfully", { type: "success" });
-    close();
+    const selectProduct = products?.filter(
+      (product) => product.isOrder === true
+    );
+    if (selectProduct && selectProduct?.length < 1) {
+      return toast("Cart is empty", { type: "error" });
+    }
+    const orderData = {
+      items: selectProduct?.map((product) => ({
+        ...product,
+        productId: product?._id,
+      })),
+      shippingAddress: {
+        street: shippingAddress?.address,
+        city: shippingAddress?.city,
+        state: shippingAddress?.state,
+        email: shippingAddress?.email,
+        phoneNumber: shippingAddress?.phoneNumber,
+        name: shippingAddress?.name,
+      },
+      totalAmount,
+    };
+    createOrderAsync({ value: orderData });
   };
 
-  const openModal = (total: number) => {
+  const openModal = (total: number, address: ShippingAddress) => {
     setTotalAmount(total);
+    setShippingAddress(address);
     open();
   };
   return {
@@ -74,9 +126,10 @@ function useCreateOrder() {
           </p>
           <Button
             onClick={createOrder}
+            disabled={isPending}
             className=" px-5 py-3 rounded-lg w-full"
           >
-            I've transfered the money
+            {isPending ? "Creating order" : "I've transfered the money"}
           </Button>
         </div>
       </Modal>

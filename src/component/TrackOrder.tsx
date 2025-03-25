@@ -1,10 +1,22 @@
 "use client";
 import { PiInvoiceDuotone } from "react-icons/pi";
 import { CiDeliveryTruck } from "react-icons/ci";
-import { BiCheck } from "react-icons/bi";
-import { useState } from "react";
+import {
+  BiCheck,
+  BiChevronDown,
+  BiChevronLeft,
+  BiLoader,
+} from "react-icons/bi";
+import { useMemo, useState } from "react";
 import Button from "./Button";
 import { cn } from "../../utils/utils";
+import { Order } from "../../types";
+import { Menu } from "@mantine/core";
+import { useMutation } from "@tanstack/react-query";
+import { useFetch } from "@/hooks/useFetch";
+import { endpoints } from "../../libs/endpoints";
+import { toast } from "react-toastify";
+import { useRouter } from "next/navigation";
 
 const trackingOrderSteps = [
   { title: "Order Confirmed", date: "wed, 1st jan" },
@@ -12,29 +24,108 @@ const trackingOrderSteps = [
   { title: "Out For Delivery", date: "wed, 1st jan" },
   { title: "Delivered", date: "wed, 1st jan" },
 ];
-const TrackingOrder = () => {
-  const [current, _] = useState("Shipped");
-  return (
-    <div className="space-y-10">
-      <div className="flex items-center justify-between py-4">
-        <p className="font-bold">Order ID: 32212332222</p>
+const TrackingOrder = ({
+  order,
+  isAdmin,
+}: {
+  order: Order;
+  isAdmin?: boolean;
+}) => {
+  const router = useRouter();
+  const { put } = useFetch();
+  const [current, setCurrent] = useState<string>(order.status ?? "Pending");
 
-        <Button className="border border-black !text-black bg-transparent rounded-md p-2 text-sm">
-          <PiInvoiceDuotone /> Get Invoice
-        </Button>
+  const { mutateAsync, isPending } = useMutation({
+    mutationKey: ["UPDATE-STATUS"],
+    mutationFn: async ({ status }: { status: string }) => {
+      let previousStatus = current;
+      setCurrent(status);
+      const res = await put(
+        `${endpoints.admin.order.editStatus}/${order?._id}`,
+        { status }
+      );
+      if (res.success) {
+        return toast.success("Delivery status updated");
+      }
+      setCurrent(previousStatus);
+      toast.error(res.data ?? "something went wrong");
+    },
+  });
+  const orderAmount = useMemo(() => {
+    return order.items?.reduce((acc, product) => {
+      acc = acc + product?.price * product?.quantity;
+      return acc;
+    }, 0);
+  }, [order]);
+  return (
+    <div className="space-y-10  w-full mx-auto ">
+      <div className=" pt-4 flex justify-between items-center">
+        <div
+          className="flex items-center cursor-pointer"
+          onClick={() => router.back()}
+        >
+          <BiChevronLeft size={25} />
+          <p className="font-bold">Order ID: {order?.orderRef}</p>
+        </div>
+
+        {isAdmin ? (
+          <Menu
+            styles={{
+              dropdown: {
+                width: "250px !important",
+                marginTop: 8,
+                padding: 12,
+                gap: 10,
+                display: "flex",
+                flexDirection: "column",
+              },
+            }}
+          >
+            <Menu.Target>
+              <div className="border border-black !text-black bg-transparent rounded-md px-4 p-2 text-sm space-x-2 flex items-center">
+                {current}{" "}
+                {isPending ? (
+                  <BiLoader className=" animate-spin" size={23} />
+                ) : (
+                  <BiChevronDown size={26} />
+                )}
+              </div>
+            </Menu.Target>
+            <Menu.Dropdown>
+              {["Processing", "Shipped", "Delivered", "Cancelled"].map(
+                (status) => (
+                  <Menu.Item
+                    styles={{}}
+                    onClick={() => mutateAsync({ status })}
+                  >
+                    {status}
+                  </Menu.Item>
+                )
+              )}
+            </Menu.Dropdown>
+          </Menu>
+        ) : (
+          <p>{order?.status}</p>
+        )}
       </div>
-      <div className="flex items-center gap-2 border-b pb-4 dark:border-zinc-500">
+      <div className="flex items-center gap-2 border-b pb-2 dark:border-zinc-500">
         <p>
-          Order date: <strong>Feb 16, 2025</strong>
+          Order date:{" "}
+          <strong>{new Date(order.orderDate).toLocaleDateString()}</strong>
         </p>
         <div className="flex items-center gap-2 text-primary-400">
           <CiDeliveryTruck size={25} />
-          <p className="font-bold">Estimated delivery: May 16, 2025</p>
+          <p className="font-bold">
+            Estimated delivery:{" "}
+            {/* {new Date(
+              order.orderDate.setDate(order.orderDate.getDate() + 4)
+            ).toLocaleDateString()} */}
+          </p>
         </div>
       </div>
 
-      <div className="flex w-full justify-center">
-        <div className="flex w-[90%]">
+      {/* <div className="flex justify-center">
+        <div className="flex ">
           {trackingOrderSteps.map((shipping, index) => {
             const currentId = trackingOrderSteps.findIndex(
               (value) => value.title == current
@@ -64,49 +155,52 @@ const TrackingOrder = () => {
             );
           })}
         </div>
-      </div>
+      </div> */}
 
-      <div className="space-y-3 border-b dark:border-zinc-500">
-        <div className="flex items-center gap-5 py-3">
-          <div className="flex flex-1 items-start gap-x-5">
-            <img
-              src={"/placeholders.jpg"}
-              alt=""
-              height={130}
-              width={130}
-              className="rounded-md"
-            />
-            <div className="flex h-[130px] flex-col justify-center gap-4 py-2">
-              <p>Sliding door</p>
-              {/* {product?.installationFee > 0 && product?.installation && ( */}
-              <div className="flex items-center gap-x-2">
-                <p>
-                  Include expert installation service for an additional{" "}
-                  <strong>N12,300</strong>
-                </p>
+      <div className="space-y-2 border-b dark:border-zinc-500">
+        {order?.items?.map((product) => (
+          <div className="flex items-center gap-5 pb-3">
+            <div className="flex flex-1 items-center gap-x-5">
+              <img
+                src={product?.productId?.imageUrl[0]}
+                alt=""
+                height={60}
+                width={60}
+                className="rounded-md border"
+              />
+              <div className="flex h-[130px] flex-col justify-center gap-2 py-2">
+                <p>{product?.productId?.name}</p>
+                {/* {product?.installationFee > 0 && product?.installation && ( */}
+                <div className="flex items-center gap-x-2">
+                  NGN {product?.price.toLocaleString()}
+                </div>
+                {/* )} */}
               </div>
-              {/* )} */}
+            </div>
+            <div className="flex flex-col items-end">
+              <strong className="text-lg">
+                NGN {(product?.price * product?.quantity).toLocaleString()}{" "}
+              </strong>
+              <p>Qty: {product?.quantity}</p>
             </div>
           </div>
-          <div className="flex flex-col items-end">
-            <strong className="text-lg">NGN 10,000</strong>
-            <p>Qty: 1</p>
-          </div>
-        </div>
+        ))}
       </div>
 
-      <div className="grid gap-4 border-b py-4 sm:grid-cols-2 dark:border-zinc-500">
+      <div className="grid gap-4 border-b pb-4  dark:border-zinc-500">
         <div className="space-y-3">
-          <p className="text-lg font-semibold">Payment</p>
-          123*223
+          <p className="text-lg font-semibold">Contact Information</p>
+          <p>{order?.shippingAddress?.name}</p>
+          <p>{order?.shippingAddress?.email}</p>
+          <p>{order?.shippingAddress?.phoneNumber}</p>
         </div>
 
         <div className="space-y-3">
-          <p className="text-lg font-semibold">Delivery</p>
-          <small>Address</small>
-          <p>23 Marina street, Victoria Island, Lagos</p>
-          <p>Ibadan, Lagos,</p>
-          <p>092 03230 0232</p>
+          <p className="text-lg font-semibold">Delivery Address</p>
+          <p>{order?.shippingAddress?.street}</p>
+          <p>
+            {order?.shippingAddress?.state}, {order?.shippingAddress?.city}
+          </p>
         </div>
       </div>
 
@@ -120,20 +214,21 @@ const TrackingOrder = () => {
 
         <div className="flex items-center justify-between">
           <p>Order amount:</p>
-          <p className="">NGN 0</p>
-        </div>
-        <div className="flex items-center justify-between">
-          <p>Installation fee:</p>
-          <p className="">NGN 0</p>
+          <p className="">NGN {orderAmount.toLocaleString()}</p>
         </div>
 
         <div className="flex items-center justify-between">
           <p>Delivery fee: </p>
-          <p className="">NGN 0</p>
+          <p className="">
+            NGN {order?.shippingId?.shippingFee.toLocaleString()}
+          </p>
         </div>
         <div className="flex items-center justify-between">
           <p className="font-semibold">Total:</p>
-          <p className="text-lg font-semibold">NGN 0</p>
+          <p className="text-lg font-semibold">
+            NGN{" "}
+            {(orderAmount + order?.shippingId?.shippingFee).toLocaleString()}
+          </p>
         </div>
       </div>
     </div>
