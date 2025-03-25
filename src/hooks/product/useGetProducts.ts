@@ -3,12 +3,14 @@ import { endpoints } from "../../../libs/endpoints";
 import { Product } from "../../../types";
 import { useFetch } from "../useFetch";
 
-const useGetProducts = () => {
+const useGetProducts = (category?: string, name?: string) => {
   const { get } = useFetch();
   const { data: products, isLoading } = useQuery<Product[]>({
-    queryKey: ["Products"],
+    queryKey: ["Products", category, name],
     queryFn: async () => {
-      const res = await get(endpoints.user.product.products);
+      const res = await get(
+        `${endpoints.user.product.products}?categoryId=${category}&name=${name}`
+      );
       return res.data.products;
     },
   });

@@ -11,17 +11,17 @@ const Header = () => {
   return (
     <div className="w-full p-6 md:px-12 lg:px-20 border-b border-zinc-300">
       <div className="flex justify-between items-center">
-        <div className=" flex">
+        <Link href={"/"} className=" flex">
           <p className=" text-3xl">Ruby Glow</p>
-        </div>
+        </Link>
 
         <div className="sm:flex items-center gap-12  uppercase hidden">
           <Link href={"/products"} className=" cursor-pointer tracking-widest">
             Shop
           </Link>
-          <Link href={"/"} className=" cursor-pointer tracking-widest">
+          {/* <Link href={"/"} className=" cursor-pointer tracking-widest">
             Service
-          </Link>
+          </Link> */}
           <Link
             href={"/track-order"}
             className=" cursor-pointer tracking-widest"

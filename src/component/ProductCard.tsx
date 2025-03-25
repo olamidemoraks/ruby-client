@@ -14,7 +14,7 @@ const ProductCard = ({ product }: Props) => {
     const cartProduct = {
       _id: product?._id,
       name: product.name,
-      price: product.price,
+      price: product?.discountPrice ? product?.discountPrice : product.price,
       quantity: 1,
       images: [...product?.imageUrl],
     };
@@ -33,7 +33,7 @@ const ProductCard = ({ product }: Props) => {
           width={300}
           alt=""
           loading="lazy"
-          className=" h-full w-full"
+          className=" h-full w-full object-cover"
         />
 
         <div

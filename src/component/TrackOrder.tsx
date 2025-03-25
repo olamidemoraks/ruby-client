@@ -6,6 +6,7 @@ import {
   BiChevronDown,
   BiChevronLeft,
   BiLoader,
+  BiPackage,
 } from "react-icons/bi";
 import { useMemo, useState } from "react";
 import Button from "./Button";
@@ -16,13 +17,16 @@ import { useMutation } from "@tanstack/react-query";
 import { useFetch } from "@/hooks/useFetch";
 import { endpoints } from "../../libs/endpoints";
 import { toast } from "react-toastify";
+import { FaHandHoldingUsd } from "react-icons/fa";
 import { useRouter } from "next/navigation";
+import { FaTruckFast } from "react-icons/fa6";
+import { MdLocationPin } from "react-icons/md";
 
 const trackingOrderSteps = [
-  { title: "Order Confirmed", date: "wed, 1st jan" },
-  { title: "Shipped", date: "wed, 1st jan" },
-  { title: "Out For Delivery", date: "wed, 1st jan" },
-  { title: "Delivered", date: "wed, 1st jan" },
+  { title: "Pending", icon: BiPackage },
+  { title: "Processing", icon: FaHandHoldingUsd },
+  { title: "Shipped", icon: FaTruckFast },
+  { title: "Delivered", icon: MdLocationPin },
 ];
 const TrackingOrder = ({
   order,
@@ -58,7 +62,7 @@ const TrackingOrder = ({
     }, 0);
   }, [order]);
   return (
-    <div className="space-y-10  w-full mx-auto ">
+    <div className="space-y-5  w-full mx-auto ">
       <div className=" pt-4 flex justify-between items-center">
         <div
           className="flex items-center cursor-pointer"
@@ -68,45 +72,100 @@ const TrackingOrder = ({
           <p className="font-bold">Order ID: {order?.orderRef}</p>
         </div>
 
-        {isAdmin ? (
-          <Menu
-            styles={{
-              dropdown: {
-                width: "250px !important",
-                marginTop: 8,
-                padding: 12,
-                gap: 10,
-                display: "flex",
-                flexDirection: "column",
-              },
-            }}
-          >
-            <Menu.Target>
-              <div className="border border-black !text-black bg-transparent rounded-md px-4 p-2 text-sm space-x-2 flex items-center">
-                {current}{" "}
-                {isPending ? (
-                  <BiLoader className=" animate-spin" size={23} />
-                ) : (
-                  <BiChevronDown size={26} />
+        <div className=" flex flex-col items-center gap-3">
+          {isAdmin && (
+            <Menu
+              styles={{
+                dropdown: {
+                  width: "250px !important",
+                  marginTop: 8,
+                  padding: 12,
+                  gap: 10,
+                  display: "flex",
+                  flexDirection: "column",
+                },
+              }}
+            >
+              <Menu.Target>
+                <div className="border w-fit border-black !text-black bg-transparent rounded-md px-4 p-2 text-sm space-x-2 flex items-center">
+                  {current}{" "}
+                  {isPending ? (
+                    <BiLoader className=" animate-spin" size={23} />
+                  ) : (
+                    <BiChevronDown size={26} />
+                  )}
+                </div>
+              </Menu.Target>
+              <Menu.Dropdown>
+                {["Processing", "Shipped", "Delivered", "Cancelled"].map(
+                  (status) => (
+                    <Menu.Item
+                      styles={{}}
+                      onClick={() => mutateAsync({ status })}
+                    >
+                      {status}
+                    </Menu.Item>
+                  )
                 )}
+              </Menu.Dropdown>
+            </Menu>
+          )}
+        </div>
+      </div>
+      <div className="flex justify-end">
+        <div className="flex ">
+          {trackingOrderSteps.map((shipping, index) => {
+            const currentId = trackingOrderSteps.findIndex(
+              (value) => value.title == current
+            );
+            return (
+              <div
+                key={index}
+                className={cn(index < 3 ? "w-full" : "w-[200px]")}
+              >
+                <div className={cn("space-y-1", index < 3 && "w-full")}>
+                  <div className="flex w-full translate-x-[4%] items-center">
+                    <div
+                      className={cn(
+                        "flex h-8 min-w-8 items-center justify-center rounded-full text-white",
+                        currentId >= index
+                          ? "bg-black text-white"
+                          : "bg-zinc-300 text-black",
+                        current === "Delivered" || current == "Cancelled"
+                          ? "text-white "
+                          : "text-black",
+                        current === "Delivered" && "bg-emerald-500",
+                        current === "Cancelled" && "bg-red-500"
+                      )}
+                    >
+                      <shipping.icon
+                        size={22}
+                        color={
+                          currentId >= index ||
+                          current === "Delivered" ||
+                          current == "Cancelled"
+                            ? "#fff"
+                            : "#000"
+                        }
+                      />
+                    </div>
+
+                    {index < 3 && (
+                      <div
+                        className={cn(
+                          "h-1 w-full bg-zinc-200",
+                          currentId >= index && "bg-black",
+                          current === "Delivered" && "bg-emerald-500",
+                          current === "Cancelled" && "bg-red-500"
+                        )}
+                      />
+                    )}
+                  </div>
+                </div>
               </div>
-            </Menu.Target>
-            <Menu.Dropdown>
-              {["Processing", "Shipped", "Delivered", "Cancelled"].map(
-                (status) => (
-                  <Menu.Item
-                    styles={{}}
-                    onClick={() => mutateAsync({ status })}
-                  >
-                    {status}
-                  </Menu.Item>
-                )
-              )}
-            </Menu.Dropdown>
-          </Menu>
-        ) : (
-          <p>{order?.status}</p>
-        )}
+            );
+          })}
+        </div>
       </div>
       <div className="flex items-center gap-2 border-b pb-2 dark:border-zinc-500">
         <p>
@@ -123,39 +182,6 @@ const TrackingOrder = ({
           </p>
         </div>
       </div>
-
-      {/* <div className="flex justify-center">
-        <div className="flex ">
-          {trackingOrderSteps.map((shipping, index) => {
-            const currentId = trackingOrderSteps.findIndex(
-              (value) => value.title == current
-            );
-            return (
-              <div
-                key={index}
-                className={cn(index < 3 ? "w-full" : "w-[400px]")}
-              >
-                <div className={cn("space-y-1", index < 3 && "w-full")}>
-                  <p>{shipping.title}</p>
-                  <div className="flex w-full translate-x-[4%] items-center">
-                    <div
-                      className={cn(
-                        "flex h-5 min-w-5 items-center justify-center rounded-full text-white",
-                        currentId >= index ? "bg-green-500" : "bg-zinc-300"
-                      )}
-                    >
-                      {currentId >= index ? <BiCheck /> : null}
-                    </div>
-
-                    {index < 3 && <div className="h-1 w-full bg-zinc-200" />}
-                  </div>
-                  <p>{shipping.date}</p>
-                </div>
-              </div>
-            );
-          })}
-        </div>
-      </div> */}
 
       <div className="space-y-2 border-b dark:border-zinc-500">
         {order?.items?.map((product) => (

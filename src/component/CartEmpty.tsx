@@ -1,10 +1,15 @@
 import React from "react";
 import CartImg from "../../assets/cart-empty.svg";
 
-const CartEmpty = () => {
+const CartEmpty = ({ image }: { image?: string }) => {
   return (
     <div className=" h-full w-full flex justify-center items-center">
-      <img src="/cart-empty.svg" alt="cart" height={200} width={200} />
+      <img
+        src={image ?? "/cart-empty.svg"}
+        alt="cart"
+        height={200}
+        width={200}
+      />
     </div>
   );
 };

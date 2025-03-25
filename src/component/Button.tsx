@@ -16,7 +16,7 @@ const Button = ({
   return (
     <button
       type={type ?? "button"}
-      className={` bg-black disabled:opacity-30 text-white rounded-full flex justify-center items-center p-4 ${className}`}
+      className={` bg-black disabled:opacity-30 text-white rounded-full flex justify-center items-center px-4 p-2 h-fit ${className}`}
       onClick={onClick}
       disabled={disabled}
     >

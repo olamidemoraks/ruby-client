@@ -21,7 +21,6 @@ function useFetch() {
         status: response.status,
       };
     } catch (error: any) {
-      // console.log(error);
       return {
         success: false,
         data: (error as { response: { data: { message: string } } })?.response

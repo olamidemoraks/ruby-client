@@ -5,25 +5,38 @@ import React, { useState } from "react";
 import ProductCard from "@/component/ProductCard";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import useGetProducts from "@/hooks/product/useGetProducts";
+import CartEmpty from "@/component/CartEmpty";
+import useGetAllCategory from "@/hooks/product/useGetAllCategory";
+import { BiX } from "react-icons/bi";
 
-const cateories = [
-  "Make up",
-  "Lip gloss",
-  "Butt enlargement",
-  "Penis enlargement",
-];
 const page = () => {
-  const { isLoading, products } = useGetProducts();
   const [quantity, setQuantity] = useState(1);
   const searchParams = useSearchParams();
   const query = new URLSearchParams(searchParams || {});
   const pathname = usePathname();
   const router = useRouter();
   const currentCategory = searchParams.get("category");
+  const name = searchParams.get("name");
+  const { categories } = useGetAllCategory();
+
+  // const [productName, setProductName] = useState(name "");
+  const { isLoading, products } = useGetProducts(
+    currentCategory ?? "",
+    name ?? ""
+  );
 
   const handleSearchParams = (params: string, value: any) => {
     query.set(params, value);
     router.replace(`${pathname}?${query}`);
+  };
+
+  const handleSearchOnchange = (value: string) => {
+    // _.debounce(() => {
+    setTimeout(() => {
+      // setProductName(value);
+      handleSearchParams("name", value);
+    }, 500);
+    // }, 300);
   };
 
   return (
@@ -32,16 +45,23 @@ const page = () => {
         <div className="flex-[.2]">
           <p className="  font-semibold">Filter By Category</p>
           <div className="flex lg:flex-col lg:gap-4 my-4">
-            {cateories.map((category) => (
+            {categories?.map((category) => (
               <div
-                onClick={() => handleSearchParams("category", category)}
-                className={`opacity-45 cursor-pointer hover:opacity-100  px-2 lg:px-0 max-md:border-r border-zinc-400 ${
-                  category === currentCategory && "opacity-100"
+                key={category?._id}
+                onClick={() => handleSearchParams("category", category?._id)}
+                className={`opacity-45 cursor-pointer hover:opacity-100  px-2 lg:px-0 max-lg:border-r border-zinc-400 ${
+                  category?._id === currentCategory && "opacity-100"
                 } `}
               >
-                {category}
+                {category?.name}
               </div>
             ))}
+            <p
+              onClick={() => handleSearchParams("category", "")}
+              className="flex items-center gap-1 underline cursor-pointer px-2 opacity-50 hover:opacity-100"
+            >
+              clear filter <BiX />
+            </p>
           </div>
         </div>
         <div className=" w-full flex-1">
@@ -50,12 +70,19 @@ const page = () => {
             <div className=" flex items-center gap-3 px-4 border rounded-full border-zinc-600">
               <SearchNormal1 size="24" color="#52525c" />
               <input
+                onChange={(e) => handleSearchOnchange(e.target.value)}
+                defaultValue={name ?? ""}
                 type="text"
                 placeholder="search for product"
                 className="py-3 outline-none border-none bg-transparent min-w-[300px]"
               />
             </div>
           </div>
+          {(!products || products?.length < 1) && !isLoading && (
+            <div className="flex w-full min-h-[50vh] justify-center items-center opacity-40 ">
+              <CartEmpty image="/empty-box.svg" />
+            </div>
+          )}
           <div className=" grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 2xl:grid-cols-4 gap-10 mt-10">
             {products?.map((product) => (
               <div

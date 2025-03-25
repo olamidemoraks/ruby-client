@@ -6,10 +6,11 @@ import Image from "next/image";
 import { useMemo, useState } from "react";
 import { toast } from "react-toastify";
 import { useCart } from "../../store/cart";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { endpoints } from "../../libs/endpoints";
 import { useFetch } from "./useFetch";
 import { useRouter } from "next/navigation";
+import useGetAccount from "./product/useGetAccount";
 
 export type ShippingAddress = {
   address: string;
@@ -26,6 +27,7 @@ function useCreateOrder() {
   const { post } = useFetch();
   const { products, clearCart } = useCart();
   const [shippingAddress, setShippingAddress] = useState<ShippingAddress>();
+  const { Account } = useGetAccount();
 
   const { mutateAsync: createOrderAsync, isPending } = useMutation({
     mutationKey: ["CREATE-ORDER"],
@@ -111,18 +113,21 @@ function useCreateOrder() {
           </p>
           <div className=" bg-neutral-100 p-2 text-center space-y-1">
             <p className=" uppercase tracking-widest font-semibold">
-              Access Bank
+              {Account?.accountBank}
             </p>
-            <p className=" font-semibold text-lg tracking-wider">8100311867</p>
+            <p className=" font-semibold text-lg tracking-wider">
+              {Account?.accountNumber}
+            </p>
             <div className=" text-center space-x-1">
               <p className=" text-xs opacity-70">Account Name</p>
-              <p className=" capitalize">Olamide Morakinyo</p>
+              <p className=" capitalize">{Account?.accountName}</p>
             </div>
           </div>
 
           <p className=" text-sm opacity-75">
-            p.s: Send transaction receipt to <strong>08102129821</strong> on
-            whatsapp to confirm your order
+            p.s: Send transaction receipt to{" "}
+            <strong>{Account?.phoneNumber}</strong> on whatsapp to confirm your
+            order
           </p>
           <Button
             onClick={createOrder}

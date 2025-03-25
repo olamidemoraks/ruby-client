@@ -2,7 +2,6 @@
 import { Add, Minus, Star1 } from "iconsax-react";
 import React, { useState } from "react";
 import ProductCard from "@/component/ProductCard";
-import { products } from "../../../../../libs/data";
 import { useQuery } from "@tanstack/react-query";
 import { endpoints } from "../../../../../libs/endpoints";
 import { useFetch } from "@/hooks/useFetch";
@@ -38,7 +37,7 @@ const page = () => {
       const cartProduct = {
         _id: product._id,
         name: product.name,
-        price: product.price,
+        price: product?.discountPrice ? product?.discountPrice : product.price,
         quantity,
         images: product?.imageUrl,
       };
@@ -169,14 +168,12 @@ const page = () => {
         </div>
       </div>
 
-      <div>
+      {/* <div>
         <p className=" text-2xl md:text-4xl mt-10">You May Also Like</p>
         <div className=" grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 gap-10 mt-10">
-          {/* {products.map((product, index) => (
-            <ProductCard product={product} key={index} />
-          ))} */}
+          
         </div>
-      </div>
+      </div> */}
     </div>
   );
 };

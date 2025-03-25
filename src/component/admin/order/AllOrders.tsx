@@ -11,26 +11,15 @@ import { Order } from "../../../../types";
 import { useRouter } from "next/navigation";
 import { cn } from "../../../../utils/utils";
 import _ from "lodash";
+import useGetAllOrder from "@/hooks/useGetAllOrder";
 
-const AllOrders = () => {
+const AllOrders = ({ recent }: { recent?: boolean }) => {
   const { setTitle } = useSidebarStore();
   const { get } = useFetch();
   const [orderRef, setOrderRef] = useState("");
-  console.log(orderRef);
   const router = useRouter();
-  const { data: Orders, isLoading } = useQuery<Order[]>({
-    queryKey: ["ORDERS", orderRef],
-    queryFn: async () => {
-      const res = await get(`${endpoints.admin.order.orders}?ref=${orderRef}`);
-      if (res.success) {
-        return res.data;
-      }
-      toast.error(res.data ?? "something went wrong");
-      return [];
-    },
-  });
+  const { Orders, isLoading } = useGetAllOrder(orderRef);
 
-  console.log(Orders);
   useEffect(() => {
     setTitle("All Orders");
   }, []);
@@ -43,7 +32,7 @@ const AllOrders = () => {
     // }, 300);
   };
 
-  const rows = Orders?.map((element) => (
+  const rows = (recent ? Orders?.slice(0, 5) : Orders)?.map((element) => (
     <Table.Tr
       key={element?.orderRef}
       onClick={() => router.push(`/dashboard/orders/${element?.orderRef}`)}
@@ -57,10 +46,10 @@ const AllOrders = () => {
       <Table.Td>
         <DeliveryStatusText status={element?.status} />
       </Table.Td>
-      <Table.Td>
+      <Table.Td className=" md:block hidden">
         <div className="flex -space-x-3">
-          {element.items.map((item) => (
-            <div>
+          {element.items.map((item, index) => (
+            <div key={index}>
               <img
                 src={item?.productId.imageUrl[0]}
                 className="h-[40px] w-[40px] rounded-full border border-zinc-300"
@@ -77,16 +66,23 @@ const AllOrders = () => {
     </Table.Tr>
   ));
   return (
-    <div className="space-y-4 bg-white rounded-lg p-4 md:w-full w-[100vw] overscroll-auto">
-      <div>
-        <InputField
-          onChange={(e) => handleSearchOnchange(e.target.value)}
-          defaultValue={orderRef}
-          placeholder="search by order ref"
-          className=" max-w-[300px]"
-          labelName="Order Reference"
-        />
-      </div>
+    <div
+      className={cn(
+        "space-y-4 md:w-full  overscroll-auto",
+        !recent && "bg-white rounded-lg p-4  md:w-full w-[100vw]"
+      )}
+    >
+      {!recent && (
+        <div>
+          <InputField
+            onChange={(e) => handleSearchOnchange(e.target.value)}
+            defaultValue={orderRef}
+            placeholder="search by order ref"
+            className=" max-w-[300px]"
+            labelName="Order Reference"
+          />
+        </div>
+      )}
       <div className="h-[1px] bg-zinc-300 w-full" />
       <div className="">
         <Table className=" ">
@@ -95,7 +91,7 @@ const AllOrders = () => {
               <Table.Th>Order</Table.Th>
               <Table.Th> Customer</Table.Th>
               <Table.Th>Status</Table.Th>
-              <Table.Th>Product</Table.Th>
+              <Table.Th className=" md:block hidden">Product</Table.Th>
               <Table.Th>Total</Table.Th>
               <Table.Th className=" md:block hidden">Date</Table.Th>
             </Table.Tr>

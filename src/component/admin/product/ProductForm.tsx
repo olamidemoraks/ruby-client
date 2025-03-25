@@ -19,6 +19,7 @@ import InputField from "@/component/InputField";
 import SelectField from "@/component/SelectField";
 import Button from "@/component/Button";
 import { useSidebarStore } from "../../../../store/sidebar";
+import useGetAllCategory from "@/hooks/product/useGetAllCategory";
 
 const MDEditor = dynamic(() => import("@uiw/react-md-editor"), { ssr: false });
 
@@ -26,7 +27,7 @@ export const InventoryFormScheme = z.object({
   name: z
     .string({ message: "please provide product name" })
     .nonempty({ message: "please provide product name" }),
-  category: z
+  categoryId: z
     .string({ message: "please provide product category" })
     .nonempty({ message: "please provide product category" }),
   description: z
@@ -47,6 +48,7 @@ const ProductForm = ({ isEdit = false }: { isEdit?: boolean }) => {
   const { post, get, put, remove } = useFetch();
   const { push } = useRouter();
   const { id } = useParams();
+  const { categories } = useGetAllCategory();
 
   const {
     handleSubmit,
@@ -59,12 +61,14 @@ const ProductForm = ({ isEdit = false }: { isEdit?: boolean }) => {
     resolver: zodResolver(InventoryFormScheme),
   });
 
-  console.log(watch("inStock"));
   const { data, refetch } = useQuery({
     queryKey: ["INVENTORY"],
     queryFn: async () => {
       const res = await get(`${endpoints.admin.product.getProduct}/${id}`);
-      return res.data.product;
+      if (res.success) {
+        return res.data.product;
+      }
+      return {};
     },
     enabled: !!id,
   });
@@ -150,8 +154,6 @@ const ProductForm = ({ isEdit = false }: { isEdit?: boolean }) => {
     });
   };
 
-  console.log({ image });
-
   const removeImage = (
     imageIdx: number,
     e: React.MouseEvent<HTMLDivElement, MouseEvent>
@@ -163,8 +165,6 @@ const ProductForm = ({ isEdit = false }: { isEdit?: boolean }) => {
       return newImageArr.filter((_, index) => index != imageIdx);
     });
   };
-
-  console.log({ errors });
 
   const handleCreateSubmit = (value: IFormScheme) => {
     if (!isEdit && imageSrc.length < 1) {
@@ -231,15 +231,20 @@ const ProductForm = ({ isEdit = false }: { isEdit?: boolean }) => {
         /> */}
 
         <Controller
-          name="category"
+          name="categoryId"
           control={control}
           render={({ field }) => (
             <SelectField
-              data={["equipment", "apparel", "footwear", "accessories"]}
+              data={
+                categories?.map((category) => ({
+                  value: category?._id,
+                  label: category?.name,
+                })) as any[]
+              }
               {...field}
               placeholder="product category"
               label="Product category"
-              errorMessage={errors.category?.message}
+              errorMessage={errors.categoryId?.message}
               required
             />
           )}

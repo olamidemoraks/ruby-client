@@ -5,6 +5,7 @@ import SidebarSection from "./SidebarSection";
 import { SidebarLink } from "../../../types";
 import { useSidebarStore } from "../../../store/sidebar";
 import { cn } from "../../../utils/utils";
+import { BiCategory } from "react-icons/bi";
 const DashboardSidebar = () => {
   const sidebarItems: SidebarLink[] = [
     {
@@ -27,6 +28,13 @@ const DashboardSidebar = () => {
           text: "Add Product",
         },
       ],
+    },
+
+    {
+      container: false,
+      icon: <BiCategory />,
+      path: "/dashboard/category",
+      text: "Category",
     },
     {
       container: false,

@@ -4,6 +4,7 @@ export const endpoints = {
       getShippingFee: "/shipping/fee",
     },
     order: {
+      account: "/account",
       createOrder: "/orders",
       trackOrder: "/order",
     },
@@ -16,6 +17,7 @@ export const endpoints = {
   admin: {
     profile: {
       getProfile: "/get-profile",
+      changePassword: "/change-password",
     },
     auth: {
       login: "/admin/login",
@@ -32,5 +34,6 @@ export const endpoints = {
       orders: "/orders",
       editStatus: "/orders-status",
     },
+    category: "/category",
   },
 };

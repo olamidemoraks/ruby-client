@@ -30,12 +30,11 @@ const page = () => {
       if (res.success) {
         return res.data.order;
       }
-      toast.error(res.data ?? "Order not found");
+      if (ref) toast.error(res.data ?? "Order not found");
     },
     enabled: !!ref,
   });
 
-  console.log({ order });
   const handleSearchParams = (params: string, value: any) => {
     query.set(params, value);
     router.replace(`${pathname}?${query}`);

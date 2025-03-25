@@ -23,7 +23,9 @@ const DashboardNavbar = () => {
     <div className=" p-4 overflow-x-clip w-full border-b border-neutral-200">
       <div className="flex items-center justify-between ">
         <div className="flex  items-center">
-          <p className={` text-3xl font-bold text-center p-5`}>Ruby Store</p>
+          <p className={` text-xl sm:text-3xl font-bold text-center p-5`}>
+            Ruby Store
+          </p>
           <div className=" capitalize text-xl font-bold md:flex hidden items-center gap-x-2">
             <GoSidebarExpand size={27} onClick={() => collapseSidebar()} />
             {title}
@@ -57,9 +59,7 @@ const DashboardNavbar = () => {
 
             <Menu.Dropdown>
               <Menu.Item
-                onClick={() =>
-                  router.push("/tenants/dashboard/admin/settings?tab=user-info")
-                }
+                onClick={() => router.push("/dashboard/setting?tabs=account")}
                 leftSection={<TbUserEdit size={20} />}
               >
                 Edit Profile

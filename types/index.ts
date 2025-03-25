@@ -62,3 +62,9 @@ export type User = {
   role: "admin" | "user";
   _id: string;
 };
+export type Account = {
+  accountBank: string;
+  accountName: string;
+  accountNumber: string;
+  phoneNumber: string;
+};
