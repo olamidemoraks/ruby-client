@@ -13,7 +13,7 @@ const SearchFilters = ({
 }: {
   handleSearchParams: (params: string, value: any) => void;
 }) => {
-  const searchParams = useSearchParams();
+  const searchParams = useSearchParams(); // ✅ Inside Suspense!
   const currentCategory = searchParams.get("category");
   const { categories } = useGetAllCategory();
 
@@ -43,11 +43,11 @@ const SearchFilters = ({
   );
 };
 
-const Page = () => {
+const SearchPage = () => {
   const [quantity, setQuantity] = useState(1);
   const router = useRouter();
   const pathname = usePathname();
-  const searchParams = useSearchParams();
+  const searchParams = useSearchParams(); // ✅ Now inside Suspense!
   const name = searchParams.get("name");
   const currentCategory = searchParams.get("category");
   const { isLoading, products } = useGetProducts(
@@ -55,11 +55,11 @@ const Page = () => {
     name ?? ""
   );
 
-  const query = new URLSearchParams(searchParams || {});
+  const query = new URLSearchParams(searchParams?.toString() || "");
 
   const handleSearchParams = (params: string, value: any) => {
     query.set(params, value);
-    router.replace(`${pathname}?${query}`);
+    router.replace(`${pathname}?${query.toString()}`);
   };
 
   const handleSearchOnchange = (value: string) => {
@@ -71,10 +71,7 @@ const Page = () => {
   return (
     <div className="p-6 md:px-12 mt-10 space-y-10 w-full">
       <div className="flex lg:flex-row flex-col w-full">
-        {/* 🟢 Only wrap this part in Suspense */}
-        <Suspense>
-          <SearchFilters handleSearchParams={handleSearchParams} />
-        </Suspense>
+        <SearchFilters handleSearchParams={handleSearchParams} />
 
         <div className="w-full flex-1">
           <div className="w-full flex justify-between items-center">
@@ -110,6 +107,15 @@ const Page = () => {
         </div>
       </div>
     </div>
+  );
+};
+
+// ✅ Wrap the ENTIRE page in Suspense!
+const Page = () => {
+  return (
+    <Suspense fallback={<p>Loading products...</p>}>
+      <SearchPage />
+    </Suspense>
   );
 };
 
