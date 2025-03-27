@@ -67,27 +67,14 @@ const Header = () => {
             Service
           </Link> */}
 
-                <Menu.Item
-                  styles={{}}
-                  // onClick={() => mutateAsync({ status })}
-                >
-                  <Link
-                    href={"/products"}
-                    className=" cursor-pointer tracking-widest"
-                  >
-                    Shop
-                  </Link>{" "}
+                <Menu.Item styles={{}} onClick={() => router.push("/products")}>
+                  <p className=" cursor-pointer tracking-widest">Shop</p>{" "}
                 </Menu.Item>
                 <Menu.Item
                   styles={{}}
-                  // onClick={() => mutateAsync({ status })}
+                  onClick={() => router.push("/track-order")}
                 >
-                  <Link
-                    href={"/track-order"}
-                    className=" cursor-pointer tracking-widest"
-                  >
-                    Track Order
-                  </Link>
+                  <p className=" cursor-pointer tracking-widest">Track Order</p>
                 </Menu.Item>
               </Menu.Dropdown>
             </Menu>

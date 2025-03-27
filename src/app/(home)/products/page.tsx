@@ -7,6 +7,7 @@ import { SearchNormal1 } from "iconsax-react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useState, Suspense } from "react";
 import { BiX } from "react-icons/bi";
+import { FaSpinner } from "react-icons/fa";
 
 const SearchFilters = ({
   handleSearchParams,
@@ -70,23 +71,38 @@ const SearchPage = () => {
 
   return (
     <div className="p-6 md:px-12 mt-10 space-y-10 w-full">
+      <div className="sm:hidden flex items-center gap-3 px-4 border rounded-full border-zinc-600">
+        <SearchNormal1 size="24" color="#52525c" />
+        <input
+          onChange={(e) => handleSearchOnchange(e.target.value)}
+          defaultValue={name ?? ""}
+          type="text"
+          placeholder="search for product"
+          className="py-3 outline-none border-none bg-transparent min-w-[300px] "
+        />
+      </div>
       <div className="flex lg:flex-row flex-col w-full">
         <SearchFilters handleSearchParams={handleSearchParams} />
 
         <div className="w-full flex-1">
-          <div className="w-full flex justify-between items-center">
+          <div className="w-full flex sm:flex-row flex-col justify-between sm:items-center">
             <p className="text-2xl md:text-4xl">Products</p>
-            <div className="flex items-center gap-3 px-4 border rounded-full border-zinc-600">
+            <div className="sm:flex hidden items-center gap-3 px-4 border rounded-full border-zinc-600">
               <SearchNormal1 size="24" color="#52525c" />
               <input
                 onChange={(e) => handleSearchOnchange(e.target.value)}
                 defaultValue={name ?? ""}
                 type="text"
                 placeholder="search for product"
-                className="py-3 outline-none border-none bg-transparent min-w-[300px]"
+                className="py-3 outline-none border-none bg-transparent min-w-[300px] "
               />
             </div>
           </div>
+          {isLoading && (
+            <div className=" w-full min-h-[50vh] flex justify-center items-center">
+              <FaSpinner size={32} className=" animate-spin" />
+            </div>
+          )}
 
           {(!products || products?.length < 1) && !isLoading && (
             <div className="flex w-full min-h-[50vh] justify-center items-center opacity-40">
