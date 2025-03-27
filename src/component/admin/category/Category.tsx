@@ -2,7 +2,7 @@
 import Button from "@/component/Button";
 import InputField from "@/component/InputField";
 import { useFetch } from "@/hooks/useFetch";
-import React, { useState } from "react";
+import React, { Suspense, useState } from "react";
 import { endpoints } from "../../../../libs/endpoints";
 import { toast } from "react-toastify";
 import { useQuery } from "@tanstack/react-query";
@@ -62,60 +62,62 @@ const Category = () => {
   };
 
   return (
-    <div className="flex md:flex-row flex-col-reverse  md:min-h-[70vh] gap-6">
-      <div className=" md:flex-[.5] w-full p-4 bg-white rounded-lg ">
-        <p className="text-lg font-semibold">All Category</p>
-        <div className=" space-y-4 mt-3">
-          {categories
-            ?.sort((a, b) => a.name.localeCompare(b.name))
-            ?.map((value) => (
-              <p
-                onClick={() => {
-                  handleSearchParams("id", value?._id);
-                  setCategory(value?.name);
-                }}
-                className=" p-3 hover:bg-purple-50 border-b border-zinc-200"
-                key={value._id}
-              >
-                {value.name}
-              </p>
-            ))}
+    <Suspense>
+      <div className="flex md:flex-row flex-col-reverse  md:min-h-[70vh] gap-6">
+        <div className=" md:flex-[.5] w-full p-4 bg-white rounded-lg ">
+          <p className="text-lg font-semibold">All Category</p>
+          <div className=" space-y-4 mt-3">
+            {categories
+              ?.sort((a, b) => a.name.localeCompare(b.name))
+              ?.map((value) => (
+                <p
+                  onClick={() => {
+                    handleSearchParams("id", value?._id);
+                    setCategory(value?.name);
+                  }}
+                  className=" p-3 hover:bg-purple-50 border-b border-zinc-200"
+                  key={value._id}
+                >
+                  {value.name}
+                </p>
+              ))}
+          </div>
         </div>
-      </div>
-      <div className=" md:flex-1 w-full h-fit p-4 bg-white rounded-lg space-y-4 ">
-        <p className=" text-lg font-semibold">
-          {isEdit ? "Edit" : "Create"} Category
-        </p>
-        <InputField
-          value={category}
-          onChange={(e) => setCategory(e.target.value)}
-          labelName="Category Name"
-          placeholder="Enter category name"
-        />
-
-        <div className="flex items-center gap-3">
-          <Button onClick={SubmitCategory}>
+        <div className=" md:flex-1 w-full h-fit p-4 bg-white rounded-lg space-y-4 ">
+          <p className=" text-lg font-semibold">
             {isEdit ? "Edit" : "Create"} Category
-          </Button>
-          {isEdit && (
-            <>
-              <Button className=" bg-red-500" onClick={deleteCategory}>
-                Delete
-              </Button>
-              <Button
-                className=" bg-zinc-300 text-black"
-                onClick={() => {
-                  handleSearchParams("id", "");
-                  setCategory("");
-                }}
-              >
-                <p className=" text-black">Clear</p>
-              </Button>
-            </>
-          )}
+          </p>
+          <InputField
+            value={category}
+            onChange={(e) => setCategory(e.target.value)}
+            labelName="Category Name"
+            placeholder="Enter category name"
+          />
+
+          <div className="flex items-center gap-3">
+            <Button onClick={SubmitCategory}>
+              {isEdit ? "Edit" : "Create"} Category
+            </Button>
+            {isEdit && (
+              <>
+                <Button className=" bg-red-500" onClick={deleteCategory}>
+                  Delete
+                </Button>
+                <Button
+                  className=" bg-zinc-300 text-black"
+                  onClick={() => {
+                    handleSearchParams("id", "");
+                    setCategory("");
+                  }}
+                >
+                  <p className=" text-black">Clear</p>
+                </Button>
+              </>
+            )}
+          </div>
         </div>
       </div>
-    </div>
+    </Suspense>
   );
 };
 

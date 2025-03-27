@@ -4,7 +4,7 @@ import InputField from "@/component/InputField";
 import TrackOrder from "@/component/TrackOrder";
 import { useFetch } from "@/hooks/useFetch";
 import { useQuery } from "@tanstack/react-query";
-import React, { useEffect, useState } from "react";
+import React, { Suspense, useEffect, useState } from "react";
 import { endpoints } from "../../../../libs/endpoints";
 import { toast } from "react-toastify";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
@@ -44,28 +44,30 @@ const page = () => {
     refetch();
   }, [searchParams]);
   return (
-    <div className="p-4">
-      <div className=" flex justify-center">
-        <div className=" space-y-3">
-          <InputField
-            onChange={(e) => setOrderRef(e.target.value)}
-            value={orderRef}
-            placeholder="order ref"
-            labelName="Order Reference"
-            className=" w-[400px]"
-          />
-          <Button onClick={() => handleSearchParams("ref", orderRef)}>
-            Search Order
-          </Button>
+    <Suspense>
+      <div className="p-4">
+        <div className=" flex justify-center">
+          <div className=" space-y-3">
+            <InputField
+              onChange={(e) => setOrderRef(e.target.value)}
+              value={orderRef}
+              placeholder="order ref"
+              labelName="Order Reference"
+              className=" w-[400px]"
+            />
+            <Button onClick={() => handleSearchParams("ref", orderRef)}>
+              Search Order
+            </Button>
+          </div>
         </div>
+        {isLoading && (
+          <div className=" w-full flex justify-center">
+            <PiSpinner size={40} className=" animate-spin" />
+          </div>
+        )}
+        {order && <TrackOrder order={order} />}
       </div>
-      {isLoading && (
-        <div className=" w-full flex justify-center">
-          <PiSpinner size={40} className=" animate-spin" />
-        </div>
-      )}
-      {order && <TrackOrder order={order} />}
-    </div>
+    </Suspense>
   );
 };
 
