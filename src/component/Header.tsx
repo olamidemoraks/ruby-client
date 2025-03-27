@@ -12,7 +12,7 @@ const Header = () => {
     <div className="w-full p-6 md:px-12 lg:px-20 border-b border-zinc-300">
       <div className="flex justify-between items-center">
         <Link href={"/"} className=" flex">
-          <p className=" text-3xl">Ruby Glow</p>
+          <p className=" text-3xl">Ruby's Empire</p>
         </Link>
 
         <div className="sm:flex items-center gap-12  uppercase hidden">

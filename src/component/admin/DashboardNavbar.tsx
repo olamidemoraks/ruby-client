@@ -24,7 +24,7 @@ const DashboardNavbar = () => {
       <div className="flex items-center justify-between ">
         <div className="flex  items-center">
           <p className={` text-xl sm:text-3xl font-bold text-center p-5`}>
-            Ruby Store
+            Ruby's Empire
           </p>
           <div className=" capitalize text-xl font-bold md:flex hidden items-center gap-x-2">
             <GoSidebarExpand size={27} onClick={() => collapseSidebar()} />

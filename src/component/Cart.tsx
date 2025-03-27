@@ -1,20 +1,16 @@
 "use client";
 import { Checkbox } from "@mantine/core";
-import Image from "next/image";
 import { useRouter } from "next/navigation";
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useMemo } from "react";
 import { CartProduct, useCart } from "../../store/cart";
 import { ArrowLeft2, Trash } from "iconsax-react";
 import Button from "./Button";
-import { products as rawProduct } from "../../libs/data";
-import ProductCard from "./ProductCard";
 import { toast } from "react-toastify";
 import Empty from "./CartEmpty";
 
 const CartPage = () => {
   const router = useRouter();
-  const { products, editCartProduct, removeFromCart, addToCart, clearCart } =
-    useCart();
+  const { products, editCartProduct, removeFromCart, clearCart } = useCart();
 
   const handleEditCart = (id: string, product: CartProduct) => {
     editCartProduct(id, product);
@@ -170,14 +166,10 @@ const CartPage = () => {
         </div>
       </div>
 
-      <div>
+      {/* <div>
         <p className=" text-2xl md:text-4xl mt-10">You May Also Like</p>
-        {/* <div className=" grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 gap-10 mt-10">
-          {rawProduct.map((product, index) => (
-            <ProductCard product={product} key={index} />
-          ))}
-        </div> */}
-      </div>
+       
+      </div> */}
     </div>
   );
 };
