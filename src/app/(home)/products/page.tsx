@@ -21,25 +21,25 @@ const SearchFilters = ({
   return (
     <div className="flex-[.2]">
       <p className="font-semibold">Filter By Category</p>
-      <div className="flex lg:flex-col lg:gap-4 my-4">
-        {categories?.map((category) => (
+      <div className="flex lg:flex-col lg:gap-4 my-4 min-h-[40px]  max-h-screen overflow-auto">
+        {categories?.slice(0, 10).map((category) => (
           <div
             key={category?._id}
             onClick={() => handleSearchParams("category", category?._id)}
-            className={`opacity-45 cursor-pointer hover:opacity-100 px-2 lg:px-0 max-lg:border-r border-zinc-400 ${
+            className={`opacity-45 text-sm cursor-pointer min-w-fit flex items-center gap-2 pb-2 hover:opacity-100 px-1 lg:px-0 ${
               category?._id === currentCategory && "opacity-100"
             } `}
           >
-            {category?.name}
+            {category?.name} <div className=" h-[10px] w-[1px] bg-zinc-300" />
           </div>
         ))}
-        <p
-          onClick={() => handleSearchParams("category", "")}
-          className="flex items-center gap-1 underline cursor-pointer px-2 opacity-50 hover:opacity-100"
-        >
-          clear filter <BiX />
-        </p>
       </div>
+      <p
+        onClick={() => handleSearchParams("category", "")}
+        className="flex items-center gap-1 underline cursor-pointer px-2 opacity-50 hover:opacity-100"
+      >
+        clear filter <BiX />
+      </p>
     </div>
   );
 };
