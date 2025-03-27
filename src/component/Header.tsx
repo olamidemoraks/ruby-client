@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import React from "react";
 import { useCart } from "../../store/cart";
+import { Menu } from "@mantine/core";
 
 const Header = () => {
   const router = useRouter();
@@ -45,7 +46,51 @@ const Header = () => {
             )}
           </div>
           <div className=" sm:hidden block">
-            <HambergerMenu size="29" color="#000" />
+            <Menu
+              styles={{
+                dropdown: {
+                  width: "250px !important",
+                  marginTop: 8,
+                  padding: 12,
+                  gap: 10,
+                  display: "flex",
+                  flexDirection: "column",
+                },
+              }}
+            >
+              <Menu.Target>
+                <HambergerMenu size="29" color="#000" />
+              </Menu.Target>
+
+              <Menu.Dropdown>
+                {/* <Link href={"/"} className=" cursor-pointer tracking-widest">
+            Service
+          </Link> */}
+
+                <Menu.Item
+                  styles={{}}
+                  // onClick={() => mutateAsync({ status })}
+                >
+                  <Link
+                    href={"/products"}
+                    className=" cursor-pointer tracking-widest"
+                  >
+                    Shop
+                  </Link>{" "}
+                </Menu.Item>
+                <Menu.Item
+                  styles={{}}
+                  // onClick={() => mutateAsync({ status })}
+                >
+                  <Link
+                    href={"/track-order"}
+                    className=" cursor-pointer tracking-widest"
+                  >
+                    Track Order
+                  </Link>
+                </Menu.Item>
+              </Menu.Dropdown>
+            </Menu>
           </div>
         </div>
       </div>

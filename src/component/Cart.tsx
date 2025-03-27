@@ -1,5 +1,5 @@
 "use client";
-import { Checkbox } from "@mantine/core";
+import { Checkbox, Text } from "@mantine/core";
 import { useRouter } from "next/navigation";
 import React, { useMemo } from "react";
 import { CartProduct, useCart } from "../../store/cart";
@@ -83,15 +83,16 @@ const CartPage = () => {
                     })
                   }
                 />
-                <div className="flex flex-1 items-start gap-x-5">
+                <div className="flex flex-1 items-center gap-x-5">
                   <img
                     src={product?.images[0] ?? "/placeholders.jpg"}
                     alt=""
                     height={130}
                     width={130}
+                    className=" h-[80px] w-[80px]"
                   />
                   <div className="flex h-[130px] flex-col justify-center gap-4 py-2">
-                    <p>{product?.name}</p>
+                    <Text lineClamp={2}>{product?.name}</Text>
                     <strong className="text-lg">
                       ₦{product?.price.toLocaleString()}
                     </strong>
@@ -110,7 +111,7 @@ const CartPage = () => {
                           quantity: decreaseProduct(product?.quantity),
                         });
                       }}
-                      className="px-3 cursor-pointer"
+                      className="sm:px-3 px-2 cursor-pointer"
                     >
                       -
                     </div>
@@ -122,7 +123,7 @@ const CartPage = () => {
                           quantity: increaseProduct(product?.quantity),
                         });
                       }}
-                      className="px-3 cursor-pointer"
+                      className="sm:px-3 px-2 cursor-pointer"
                     >
                       +
                     </div>
