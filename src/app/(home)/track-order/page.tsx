@@ -10,65 +10,75 @@ import { toast } from "react-toastify";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { PiSpinner } from "react-icons/pi";
 
-const page = () => {
-  const [orderRef, setOrderRef] = useState("");
-  const searchParams = useSearchParams();
-  const query = new URLSearchParams(searchParams || {});
-  const ref = searchParams.get("ref");
+const TrackOrderPage: React.FC = () => {
+  const [orderRef, setOrderRef] = useState<string>("");
+  const searchParams = useSearchParams(); // ✅ Now inside Suspense!
+  const query = new URLSearchParams(searchParams?.toString() || "");
+  const ref = searchParams?.get("ref") ?? "";
   const router = useRouter();
   const pathname = usePathname();
-
   const { get } = useFetch();
+
   const {
     data: order,
     isLoading,
     refetch,
   } = useQuery({
-    queryKey: ["TRACK-ORDER"],
+    queryKey: ["TRACK-ORDER", ref],
     queryFn: async () => {
+      if (!ref) return null;
       const res = await get(`${endpoints.user.order.trackOrder}/${ref}`);
-      if (res.success) {
-        return res.data.order;
-      }
-      if (ref) toast.error(res.data ?? "Order not found");
+      if (res.success) return res.data.order;
+      toast.error(res.data ?? "Order not found");
+      return null;
     },
     enabled: !!ref,
   });
 
-  const handleSearchParams = (params: string, value: any) => {
-    query.set(params, value);
-    router.replace(`${pathname}?${query}`);
+  const handleSearchParams = (param: string, value: string) => {
+    query.set(param, value);
+    router.replace(`${pathname}?${query.toString()}`);
   };
 
   useEffect(() => {
-    refetch();
-  }, [searchParams]);
+    if (ref) refetch();
+  }, [refetch, ref]);
+
   return (
-    <Suspense>
-      <div className="p-4">
-        <div className=" flex justify-center">
-          <div className=" space-y-3">
-            <InputField
-              onChange={(e) => setOrderRef(e.target.value)}
-              value={orderRef}
-              placeholder="order ref"
-              labelName="Order Reference"
-              className=" w-[400px]"
-            />
-            <Button onClick={() => handleSearchParams("ref", orderRef)}>
-              Search Order
-            </Button>
-          </div>
+    <div className="p-4">
+      <div className="flex justify-center">
+        <div className="space-y-3">
+          <InputField
+            onChange={(e) => setOrderRef(e.target.value)}
+            value={orderRef}
+            placeholder="Order Ref"
+            labelName="Order Reference"
+            className="w-[400px]"
+          />
+          <Button onClick={() => handleSearchParams("ref", orderRef)}>
+            Search Order
+          </Button>
         </div>
-        {isLoading && (
-          <div className=" w-full flex justify-center">
-            <PiSpinner size={40} className=" animate-spin" />
-          </div>
-        )}
-        {order && <TrackOrder order={order} />}
       </div>
+
+      {isLoading && (
+        <div className="w-full flex justify-center">
+          <PiSpinner size={40} className="animate-spin" />
+        </div>
+      )}
+
+      {order && <TrackOrder order={order} />}
+    </div>
+  );
+};
+
+// ✅ Wrap in Suspense to fix "useSearchParams() should be wrapped in a Suspense boundary"
+const Page: React.FC = () => {
+  return (
+    <Suspense fallback={<p>Loading order tracking...</p>}>
+      <TrackOrderPage />
     </Suspense>
   );
 };
 
-export default page;
+export default Page;

@@ -8,11 +8,11 @@ import { BiChevronLeft } from "react-icons/bi";
 import AccountDetails from "./AccountDetails";
 import Password from "./Password";
 
-const Settings = () => {
+const SettingsComponent: React.FC = () => {
   const { setTitle } = useSidebarStore();
-  const searchParams = useSearchParams();
-  const query = new URLSearchParams(searchParams || {});
-  const tabs = searchParams.get("tabs");
+  const searchParams = useSearchParams(); // ✅ Now inside Suspense!
+  const query = new URLSearchParams(searchParams?.toString() || "");
+  const tabs = searchParams?.get("tabs") ?? "account";
   const router = useRouter();
   const pathname = usePathname();
   const [switchTab, setSwitchTab] = useState(false);
@@ -21,13 +21,12 @@ const Settings = () => {
     setTitle("Setting");
   }, []);
 
-  const handleSearchParams = (params: string, value: any) => {
-    query.set(params, value);
-    router.replace(`${pathname}?${query}`);
+  const handleSearchParams = (param: string, value: string) => {
+    query.set(param, value);
+    router.replace(`${pathname}?${query.toString()}`);
   };
 
   let content: ReactNode;
-
   switch (tabs) {
     case "account":
       content = <AccountDetails />;
@@ -39,58 +38,69 @@ const Settings = () => {
       content = <AccountDetails />;
       break;
   }
+
   return (
-    <Suspense>
-      <div className=" flex">
+    <div className="flex">
+      {/* Sidebar */}
+      <div
+        className={cn(
+          "md:flex-[.4] flex-1 h-[87vh] bg-white rounded-l-md border-r border-zinc-300 p-5 space-y-4",
+          switchTab && "max-md:hidden"
+        )}
+      >
         <div
           className={cn(
-            "md:flex-[.4] flex-1 h-[87vh] bg-white rounded-l-md border-r border-zinc-300 p-5 space-y-4",
-            switchTab && "max-md:hidden"
+            "hover:bg-purple-50 hover:text-purple-500 p-2 px-4 flex items-center gap-5 cursor-pointer",
+            tabs === "account" && "bg-purple-50 text-purple-500"
           )}
+          onClick={() => {
+            handleSearchParams("tabs", "account");
+            setSwitchTab(true);
+          }}
         >
-          <div
-            className={cn(
-              "hover:bg-purple-50 hover:text-purple-500 p-2 px-4 flex  items-center gap-5 ",
-              tabs == "account" && "bg-purple-50 text-purple-500"
-            )}
-            onClick={() => {
-              handleSearchParams("tabs", "account");
-              setSwitchTab(true);
-            }}
-          >
-            <Card size="25" color="#ad46ff" />
-            Account Details
-          </div>
-          <div
-            className={cn(
-              "hover:bg-purple-50 hover:text-purple-500 p-2 px-4 flex  items-center gap-5 ",
-              tabs == "password" && "bg-purple-50 text-purple-500"
-            )}
-            onClick={() => {
-              handleSearchParams("tabs", "password");
-              setSwitchTab(true);
-            }}
-          >
-            <Lock size="25" color="#ad46ff" />
-            Password
-          </div>
+          <Card size="25" color="#ad46ff" />
+          Account Details
         </div>
         <div
           className={cn(
-            "flex-1 h-[87vh] bg-white rounded-md p-5",
-            !switchTab && "max-md:hidden"
+            "hover:bg-purple-50 hover:text-purple-500 p-2 px-4 flex items-center gap-5 cursor-pointer",
+            tabs === "password" && "bg-purple-50 text-purple-500"
           )}
+          onClick={() => {
+            handleSearchParams("tabs", "password");
+            setSwitchTab(true);
+          }}
         >
-          <div
-            className="flex items-center gap-x-2 w-fit md:hidden "
-            onClick={() => setSwitchTab(false)}
-          >
-            <BiChevronLeft size={26} />
-            Back
-          </div>
-          {content}
+          <Lock size="25" color="#ad46ff" />
+          Password
         </div>
       </div>
+
+      {/* Content */}
+      <div
+        className={cn(
+          "flex-1 h-[87vh] bg-white rounded-md p-5",
+          !switchTab && "max-md:hidden"
+        )}
+      >
+        <div
+          className="flex items-center gap-x-2 w-fit md:hidden cursor-pointer"
+          onClick={() => setSwitchTab(false)}
+        >
+          <BiChevronLeft size={26} />
+          Back
+        </div>
+        {content}
+      </div>
+    </div>
+  );
+};
+
+// ✅ Wrap in Suspense to fix "useSearchParams() should be wrapped in a Suspense boundary"
+const Settings: React.FC = () => {
+  return (
+    <Suspense fallback={<p>Loading settings...</p>}>
+      <SettingsComponent />
     </Suspense>
   );
 };
