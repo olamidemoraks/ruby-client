@@ -40,7 +40,7 @@ const ShippingFeeComponent: React.FC = () => {
   });
   const SubmitStateFee = async () => {
     if (!state && stateFee == 0)
-      return toast.error("Please enter a category name");
+      return toast.error("Please enter a shipping fee");
     try {
       const response = await put(`${endpoints.admin.shipping.updateState}`, {
         state,
@@ -48,7 +48,7 @@ const ShippingFeeComponent: React.FC = () => {
       });
 
       if (response.success) {
-        toast.success(response.data.message ?? "Category saved successfully");
+        toast.success(response.data.message ?? "saved successfully");
         setState("");
         setStateFee(0);
         handleSearchParams("id", "");
