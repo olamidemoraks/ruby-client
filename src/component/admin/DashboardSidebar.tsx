@@ -6,6 +6,7 @@ import { SidebarLink } from "../../../types";
 import { useSidebarStore } from "../../../store/sidebar";
 import { cn } from "../../../utils/utils";
 import { BiCategory } from "react-icons/bi";
+import { CiDeliveryTruck } from "react-icons/ci";
 const DashboardSidebar = () => {
   const sidebarItems: SidebarLink[] = [
     {
@@ -41,6 +42,13 @@ const DashboardSidebar = () => {
       icon: <MdOutlineShoppingCart />,
       path: "/dashboard/orders",
       text: "Orders",
+    },
+
+    {
+      container: false,
+      icon: <CiDeliveryTruck />,
+      path: "/dashboard/shipping-fee",
+      text: "Shipping Fee",
     },
     {
       container: false,

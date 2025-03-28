@@ -25,6 +25,9 @@ export const accountFormScheme = z.object({
   phoneNumber: z
     .string({ message: "please provide phone number" })
     .nonempty({ message: "please provide phone number" }),
+  whatsAppNumber: z
+    .string({ message: "please provide whatsAppNumber number" })
+    .nonempty({ message: "please provide whatsAppNumber number" }),
 });
 
 type IFormScheme = z.infer<typeof accountFormScheme>;
@@ -122,6 +125,18 @@ const AccountDetails = () => {
             <InputField
               {...field}
               labelName="Phone Number"
+              errorMessage={errors.phoneNumber?.message}
+              required
+            />
+          )}
+        />
+        <Controller
+          name="whatsAppNumber"
+          control={control}
+          render={({ field }) => (
+            <InputField
+              {...field}
+              labelName="WhatsApp Number"
               errorMessage={errors.phoneNumber?.message}
               required
             />

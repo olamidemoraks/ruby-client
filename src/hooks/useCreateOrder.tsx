@@ -126,8 +126,8 @@ function useCreateOrder() {
 
           <p className=" text-sm opacity-75">
             p.s: Send transaction receipt to{" "}
-            <strong>{Account?.phoneNumber}</strong> on whatsapp to confirm your
-            order
+            <strong>{Account?.whatsAppNumber}</strong> on whatsapp or call{" "}
+            <strong>{Account?.phoneNumber}</strong> to confirm your order
           </p>
           <Button
             onClick={createOrder}

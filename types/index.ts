@@ -67,4 +67,5 @@ export type Account = {
   accountName: string;
   accountNumber: string;
   phoneNumber: string;
+  whatsAppNumber: string;
 };

@@ -35,5 +35,9 @@ export const endpoints = {
       editStatus: "/orders-status",
     },
     category: "/category",
+    shipping: {
+      getAllState: "/shipping/all",
+      updateState: "/shipping/update",
+    },
   },
 };
