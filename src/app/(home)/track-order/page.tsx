@@ -53,7 +53,7 @@ const TrackOrderPage: React.FC = () => {
             value={orderRef}
             placeholder="Order Ref"
             labelName="Order Reference"
-            className="w-[400px]"
+            className="md:w-[400px] w-full"
           />
           <Button onClick={() => handleSearchParams("ref", orderRef)}>
             Search Order
