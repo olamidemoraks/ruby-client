@@ -20,6 +20,8 @@ import SelectField from "@/component/SelectField";
 import Button from "@/component/Button";
 import { useSidebarStore } from "../../../../store/sidebar";
 import useGetAllCategory from "@/hooks/product/useGetAllCategory";
+import { CldUploadWidget } from "next-cloudinary";
+import { CldImage } from "next-cloudinary";
 
 const MDEditor = dynamic(() => import("@uiw/react-md-editor"), { ssr: false });
 
@@ -49,7 +51,7 @@ const ProductForm = ({ isEdit = false }: { isEdit?: boolean }) => {
   const { push } = useRouter();
   const { id } = useParams();
   const { categories } = useGetAllCategory();
-
+  console.log(imageSrc);
   const {
     handleSubmit,
     control,
@@ -146,14 +148,6 @@ const ProductForm = ({ isEdit = false }: { isEdit?: boolean }) => {
     return fileTypes.includes(file?.type);
   };
 
-  const handleChange = (value: string) => {
-    setImageSrc((prev) => {
-      const array = [...prev];
-      array[imageIndex] = value;
-      return array;
-    });
-  };
-
   const removeImage = (
     imageIdx: number,
     e: React.MouseEvent<HTMLDivElement, MouseEvent>
@@ -182,9 +176,38 @@ const ProductForm = ({ isEdit = false }: { isEdit?: boolean }) => {
     isEdit ? setTitle("Edit Product") : setTitle("Create Product");
   }, []);
 
+  useEffect(() => {
+    console.log("Cloudinary Config:", {
+      cloudName: process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME,
+      uploadPreset: process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET,
+    });
+  }, []);
+
+  const onSuccess = (result: any) => {
+    console.log("=== UPLOAD SUCCESS ===");
+    console.log("Success result:", result);
+    const secureUrl = result.info.secure_url;
+    console.log("Secure URL:", secureUrl);
+    console.log("Current imageIndex:", imageIndex);
+
+    setImageSrc((prev) => {
+      const newArray = [...prev];
+      newArray[imageIndex] = secureUrl;
+      console.log("Updated imageSrc:", newArray);
+      return newArray;
+    });
+    toast.success("Image uploaded successfully");
+  };
+
+  const onError = (error: any) => {
+    console.error("=== UPLOAD ERROR ===", error);
+    toast.error("Failed to upload image");
+  };
+
   return (
     <div className="space-y-7">
       {/* <div className="text-[20px]">{isEdit ? "Edit" : "Add"} Product</div> */}
+
       <form
         onSubmit={handleSubmit(handleCreateSubmit)}
         className="min-h-screen w-full space-y-6 rounded-lg bg-white p-6 dark:bg-themeBg-50"
@@ -252,52 +275,101 @@ const ProductForm = ({ isEdit = false }: { isEdit?: boolean }) => {
 
         <div>
           <div>
-            {
-              <div className="flex flex-wrap items-center gap-4">
-                {Array(5)
-                  .fill(0)
-                  ?.map((_, index) => (
-                    <div
-                      key={index}
-                      className={`group h-[80px] w-[80px] border  rounded-lg relative ${
-                        imageIndex === index
-                          ? "border-indigo-400"
-                          : "border-neutral-200"
-                      }`}
-                      onClick={() => setImageIndex(index)}
-                    >
-                      {imageSrc[index] && (
-                        <>
-                          <img
-                            src={imageSrc[index]}
-                            height={250}
-                            width={150}
-                            alt=""
-                            className="h-[80px] w-[80px] rounded-lg"
+            <div className="flex flex-wrap items-center gap-4">
+              {Array(3)
+                .fill(0)
+                ?.map((_, index) => (
+                  <div
+                    key={index}
+                    className={`group h-[80px] w-[80px] border rounded-lg relative ${
+                      imageIndex === index
+                        ? "border-indigo-400"
+                        : "border-neutral-200"
+                    }`}
+                  >
+                    {imageSrc[index] ? (
+                      <>
+                        <CldImage
+                          width="80"
+                          height="80"
+                          src={imageSrc[index]}
+                          alt="Product image"
+                          className="h-[80px] w-[80px] rounded-lg object-cover"
+                        />
+                        <div
+                          onClick={(e) => removeImage(index, e)}
+                          className="absolute -right-0 bottom-[-2px] hidden rounded-full border text-primary-400 group-hover:block dark:border-white"
+                        >
+                          <IoRemoveCircle
+                            className="absolute -right-3 bottom-[-20px] text-red-400"
+                            size={30}
                           />
-                          <div
-                            onClick={(e) => removeImage(index, e)}
-                            className="absolute -right-0 bottom-[-2px] hidden rounded-full border text-primary-400 group-hover:block dark:border-white"
-                          >
-                            <IoRemoveCircle
-                              className="absolute -right-3 bottom-[-20px] text-red-400"
-                              size={30}
-                            />
-                          </div>
-                        </>
-                      )}
-                    </div>
-                  ))}
-              </div>
-            }
+                        </div>
+                      </>
+                    ) : (
+                      <CldUploadWidget
+                        uploadPreset={
+                          process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET
+                        }
+                        onSuccess={onSuccess}
+                        onError={onError}
+                        onOpen={() => console.log("Widget opened")}
+                        onClose={() => console.log("Widget closed")}
+                        options={{
+                          maxFiles: 1,
+                          sources: ["local", "url", "camera"],
+                          resourceType: "image",
+                          clientAllowedFormats: ["image"],
+                          maxFileSize: 2000000, // 2MB
+                          cloudName:
+                            process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME,
+                          showAdvancedOptions: false,
+                          showSkipCropButton: false,
+                          showPoweredBy: false,
+                          styles: {
+                            palette: {
+                              window: "#FFFFFF",
+                              windowBorder: "#90A0B3",
+                              tabIcon: "#0078FF",
+                              menuIcons: "#5A616A",
+                              textDark: "#000000",
+                              textLight: "#FFFFFF",
+                              link: "#0078FF",
+                              action: "#FF620C",
+                              inactiveTabIcon: "#0E2F5A",
+                              error: "#F44235",
+                              inProgress: "#0078FF",
+                              complete: "#20B832",
+                              sourceBg: "#E4EBF1",
+                            },
+                          },
+                        }}
+                      >
+                        {({ open, cloudinary }) => {
+                          const handleClick = () => {
+                            console.log("Opening widget for index:", index);
+                            setImageIndex(index);
+                            if (cloudinary) {
+                              console.log("Cloudinary instance available");
+                            }
+                            open();
+                          };
+                          return (
+                            <div
+                              onClick={handleClick}
+                              className="flex h-full w-full cursor-pointer items-center justify-center"
+                            >
+                              <BiImageAdd size={24} className="text-gray-400" />
+                            </div>
+                          );
+                        }}
+                      </CldUploadWidget>
+                    )}
+                  </div>
+                ))}
+            </div>
           </div>
         </div>
-        <InputField
-          placeholder="enter image url"
-          labelName={`Product Image ${imageIndex + 1}`}
-          onChange={(e) => handleChange(e.target.value)}
-          value={imageSrc[imageIndex] ?? ""}
-        />
 
         <div className="space-y-6">
           <p className="border-b py-3 text-lg font-semibold dark:border-neutral-200">

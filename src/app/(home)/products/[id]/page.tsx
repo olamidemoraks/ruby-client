@@ -65,7 +65,7 @@ const page = () => {
                   src={image}
                   alt=""
                   loading="lazy"
-                  className=" h-full w-full"
+                  className=" h-full w-full object-cover"
                 />
               </div>
             ))}

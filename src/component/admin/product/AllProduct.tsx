@@ -49,7 +49,7 @@ const AllProduct = ({ recent }: { recent?: boolean }) => {
           <img
             src={element?.imageUrl[0]}
             alt=""
-            className=" h-full w-full rounded-full"
+            className=" h-full w-full rounded-full object-contain"
           />
         </div>
       </Table.Td>
@@ -57,7 +57,7 @@ const AllProduct = ({ recent }: { recent?: boolean }) => {
       <Table.Td className=" capitalize">
         ₦{element?.price.toLocaleString()}
       </Table.Td>
-      <Table.Td className=" md:block hidden capitalize">
+      <Table.Td className=" md:flex hidden mt-2 capitalize">
         ₦{element?.discountPrice.toLocaleString()}
       </Table.Td>
       <Table.Td className="">
@@ -100,25 +100,26 @@ const AllProduct = ({ recent }: { recent?: boolean }) => {
           <br />
         </>
       )}
-      {(!data || data?.length < 1) && (
+      {!data || data?.length < 1 ? (
         <div className="flex w-full min-h-[50vh] justify-center items-center opacity-40 ">
           <CartEmpty image="/empty-box.svg" />
         </div>
+      ) : (
+        <div className="">
+          <Table className=" ">
+            <Table.Thead>
+              <Table.Tr>
+                <Table.Th>Image</Table.Th>
+                <Table.Th> Name</Table.Th>
+                <Table.Th>Price</Table.Th>
+                <Table.Th className=" md:block hidden">Discout Price</Table.Th>
+                <Table.Th>Stock</Table.Th>
+              </Table.Tr>
+            </Table.Thead>
+            <Table.Tbody>{rows}</Table.Tbody>
+          </Table>
+        </div>
       )}
-      <div className="">
-        <Table className=" ">
-          <Table.Thead>
-            <Table.Tr>
-              <Table.Th>Image</Table.Th>
-              <Table.Th> Name</Table.Th>
-              <Table.Th>Price</Table.Th>
-              <Table.Th className=" md:block hidden">Discout Price</Table.Th>
-              <Table.Th>Stock</Table.Th>
-            </Table.Tr>
-          </Table.Thead>
-          <Table.Tbody>{rows}</Table.Tbody>
-        </Table>
-      </div>
     </div>
   );
 };

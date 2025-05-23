@@ -6,6 +6,7 @@ import "@mantine/core/styles.css";
 import Header from "@/component/Header";
 import { ToastContainer, Bounce } from "react-toastify";
 import TanstackProvider from "@/helpers/TanstackProvider";
+import { CloudinaryProvider } from "@/component/CloudinaryProvider";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -34,16 +35,18 @@ export default function RootLayout({
       >
         <TanstackProvider>
           <MantineProvider>
-            <main className="">
-              <ToastContainer
-                position="top-right"
-                autoClose={4000}
-                hideProgressBar={true}
-                transition={Bounce}
-              />
+            <CloudinaryProvider>
+              <main className="">
+                <ToastContainer
+                  position="top-right"
+                  autoClose={4000}
+                  hideProgressBar={true}
+                  transition={Bounce}
+                />
 
-              {children}
-            </main>
+                {children}
+              </main>
+            </CloudinaryProvider>
           </MantineProvider>
         </TanstackProvider>
       </body>
