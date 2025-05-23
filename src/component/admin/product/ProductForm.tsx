@@ -320,7 +320,7 @@ const ProductForm = ({ isEdit = false }: { isEdit?: boolean }) => {
                           sources: ["local", "url", "camera"],
                           resourceType: "image",
                           clientAllowedFormats: ["image"],
-                          maxFileSize: 2000000, // 2MB
+                          maxFileSize: 5000000, // 2MB
                           cloudName:
                             process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME,
                           showAdvancedOptions: false,
