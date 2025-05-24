@@ -3,6 +3,7 @@ import { ShoppingCart, Star1, Trash } from "iconsax-react";
 import React from "react";
 import { useCart } from "../../store/cart";
 import { Product } from "../../types";
+import { CldImage } from "next-cloudinary";
 
 type Props = {
   product: Product;
@@ -27,13 +28,13 @@ const ProductCard = ({ product }: Props) => {
   return (
     <div className=" w-full group ">
       <div className="h-[300px] mb-1 md:h-[350px] w-full bg-[#F6F9F6] flex flex-col justify-center items-center relative">
-        <img
+        <CldImage
           src={product?.imageUrl[0]}
           height={300}
           width={300}
           alt=""
           loading="lazy"
-          className=" h-full w-full object-cover"
+          className=" h-full w-full object-contain"
         />
 
         <div

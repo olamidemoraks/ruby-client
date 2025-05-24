@@ -11,6 +11,7 @@ import { Product } from "../../../../../types";
 import { useCart } from "../../../../../store/cart";
 import Button from "@/component/Button";
 import { cn } from "../../../../../utils/utils";
+import { FaSpinner } from "react-icons/fa6";
 
 const page = () => {
   const [quantity, setQuantity] = useState(1);
@@ -19,7 +20,11 @@ const page = () => {
   const [selectImage, setSelectImage] = useState<string>();
   const { addToCart, removeFromCart, products } = useCart();
 
-  const { data: product, isLoading } = useQuery<Product>({
+  const {
+    data: product,
+    isLoading,
+    isFetching,
+  } = useQuery<Product>({
     queryKey: ["Product"],
     queryFn: async () => {
       const res = await get(`${endpoints.user.product.getProduct}/${id}`);
@@ -48,6 +53,15 @@ const page = () => {
       }
     }
   };
+
+  if (isLoading || isFetching) {
+    return (
+      <div className=" w-full min-h-[50vh] flex justify-center items-center">
+        <FaSpinner size={32} className=" animate-spin" />
+      </div>
+    );
+  }
+
   return (
     <div className="p-6 md:px-12 lg:px-20 space-y-10">
       <div className="grid lg:grid-cols-2 gap-10 ">
@@ -70,10 +84,10 @@ const page = () => {
               </div>
             ))}
           </div>
-          <div className=" sm:h-[500px] h-[400px] w-full bg-[#F6F9F6]">
+          <div className=" sm:h-[500px] h-[350px] w-full bg-[#F6F9F6]">
             <img
               src={selectImage ?? product?.imageUrl[0]}
-              className="h-full w-full rounded-lg object-cover"
+              className="h-full w-full rounded-lg object-contain"
             />
           </div>
         </div>
